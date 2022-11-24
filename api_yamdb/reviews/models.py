@@ -2,6 +2,14 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 
+class User(models.Model):
+    pass
+
+
+class Title(models.Model):
+    pass
+
+
 class Review(models.Model):
     title = models.ForeignKey(
         Title,
