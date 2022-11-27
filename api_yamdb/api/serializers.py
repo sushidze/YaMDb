@@ -72,7 +72,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ('__all__')
 
 
-class CommentSeializer(serializers.ModelSerializer):
+class CommentSerializer(serializers.ModelSerializer):
     review = serializers.SlugRelatedField(
         read_only=True,
         slug_field='text'

@@ -5,14 +5,14 @@ MODERATOR = 'moderator'
 ADMIN = 'admin'
 
 
-class AdminOnly(permissions.BasePermission):
+class AdminOnly(BasePermission):
     def has_permission(self, request, view):
         if request.user.is_anonymous:
             return False
         return request.user.role == ADMIN or request.user.is_superuser
 
 
-class ForMeOnly(permissions.BasePermission):
+class ForMeOnly(BasePermission):
     def has_permission(self, request, view):
         if request.user.is_anonymous:
             return False
@@ -20,7 +20,7 @@ class ForMeOnly(permissions.BasePermission):
             return True
 
 
-class GetAllPostDeleteAdmin(permissions.BasePermission):
+class GetAllPostDeleteAdmin(BasePermission):
     def has_permission(self, request, view):
         if request.method == 'GET':
             return True
@@ -29,7 +29,7 @@ class GetAllPostDeleteAdmin(permissions.BasePermission):
         return request.user.role == ADMIN or request.user.is_superuser
 
 
-class ReviewsCommentsPermission(permissions.BasePermission):
+class ReviewsCommentsPermission(BasePermission):
     def has_permission(self, request, view):
         return (
             request.method in SAFE_METHODS
@@ -41,7 +41,7 @@ class ReviewsCommentsPermission(permissions.BasePermission):
             return True
         return (
                 request.method in SAFE_METHODS
-                or obj.author == request.user)
+                or obj.author == request.user
                 or request.user.role == ADMIN
                 or request.user.role == MODERATOR
                 or request.user.is_superuser

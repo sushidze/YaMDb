@@ -3,13 +3,16 @@ import random
 from django.shortcuts import get_object_or_404
 
 from django.core.mail import send_mail
-from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.permissions import ForMeOnly, AdminOnly, IsAdminUserOrReadOnly, IsAdminModeratorOwnerOrReadOnly
-from api.serializers import (UserSerializer, SignupSerializer, TokenSerializer, CommentSerializer, ReviewSerializer, CategorySerializer, GenreSerializer,
-                             TitleSafeSerializer, TitleUnsafeSerializer)
+from api.serializers import (UserSerializer, SignupSerializer,
+                             TokenSerializer, CommentSerializer,
+                             ReviewSerializer, CategorySerializer,
+                             GenreSerializer, TitleSafeSerializer,
+                             TitleUnsafeSerializer)
+
 from reviews.models import User, Category, Genre, Review, Title
 from rest_framework import viewsets, status, filters, mixins
 from rest_framework.decorators import api_view
@@ -128,16 +131,6 @@ def token(request):
             )
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-=======
-from django.shortcuts import get_object_or_404
-from rest_framework import filters, mixins, viewsets
-from rest_framework.pagination import LimitOffsetPagination
-from django_filters.rest_framework import DjangoFilterBackend
-
-from reviews.models import Category, Genre, Review, Title
-from api.permissions import IsAdminUserOrReadOnly, IsAdminModeratorOwnerOrReadOnly
-from api.serializers import (CommentSerializer, ReviewSerializer, CategorySerializer, GenreSerializer,
-                             TitleSafeSerializer, TitleUnsafeSerializer)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
