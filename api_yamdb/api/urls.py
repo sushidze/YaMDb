@@ -1,7 +1,8 @@
-from django.urls import include, path
+from django.urls import path, include
 from rest_framework import routers
 
 from api import views
+
 
 v1_router = routers.DefaultRouter()
 v1_router.register(r'categories', views.CategoryViewSet, basename='categories')
@@ -19,4 +20,12 @@ v1_router.register(
 )
 
 urlpatterns = [
-    path('v1/', include(v1_router.urls)),
+    path('auth/signup/', signup, name='signup'),
+    path('auth/token/', token, name='token'),
+    path(
+        'users/me/',
+        MyViewSet.as_view({'get': 'retrieve', 'patch': 'partial_update'}),
+        name='signup'
+    ),
+    path('', include(v1_router.urls)),
+]

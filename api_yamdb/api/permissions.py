@@ -1,29 +1,48 @@
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 
+USER = 'user'
+MODERATOR = 'moderator'
+ADMIN = 'admin'
 
-class IsAdminModeratorOwnerOrReadOnly(BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return (
-            request.method in SAFE_METHODS
-            or request.user.is_admin
-            or request.user.is_moderator
-            or obj.author == request.user
-        )
 
+class AdminOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_anonymous:
+            return False
+        return request.user.role == ADMIN or request.user.is_superuser
+
+
+class ForMeOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_anonymous:
+            return False
+        else:
+            return True
+
+
+class GetAllPostDeleteAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method == 'GET':
+            return True
+        elif request.user.is_anonymous:
+            return False
+        return request.user.role == ADMIN or request.user.is_superuser
+
+
+class ReviewsCommentsPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         return (
             request.method in SAFE_METHODS
             or request.user.is_authenticated
         )
 
-
-class IsAdminUserOrReadOnly(BasePermission):
-    """Разрешает доступ к небезопасным методам только админам.
-    К остальным - всем, в т.ч. анонам."""
-    def has_permission(self, request, view):
-        return bool(
-            request.method in SAFE_METHODS
-            or request.user
-            and request.user.is_staff
+    def has_object_permission(self, request, view, obj):
+        if request.method == 'GET':
+            return True
+        return (
+                request.method in SAFE_METHODS
+                or obj.author == request.user)
+                or request.user.role == ADMIN
+                or request.user.role == MODERATOR
+                or request.user.is_superuser
         )
-   
