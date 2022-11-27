@@ -15,3 +15,15 @@ class IsAdminModeratorOwnerOrReadOnly(BasePermission):
             request.method in SAFE_METHODS
             or request.user.is_authenticated
         )
+
+
+class IsAdminUserOrReadOnly(BasePermission):
+    """Разрешает доступ к небезопасным методам только админам.
+    К остальным - всем, в т.ч. анонам."""
+    def has_permission(self, request, view):
+        return bool(
+            request.method in SAFE_METHODS
+            or request.user
+            and request.user.is_staff
+        )
+   

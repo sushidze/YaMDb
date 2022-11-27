@@ -4,6 +4,9 @@ from rest_framework import routers
 from api import views
 
 v1_router = routers.DefaultRouter()
+v1_router.register(r'categories', views.CategoryViewSet, basename='categories')
+v1_router.register(r'genres', views.GenreViewSet, basename='genres')
+v1_router.register(r'titles', views.TitleViewSet, basename='titles')
 v1_router.register(
     r'titles/(?P<title_id>\d+)/reviews',
     views.ReviewViewSet,
@@ -17,4 +20,3 @@ v1_router.register(
 
 urlpatterns = [
     path('v1/', include(v1_router.urls)),
-]

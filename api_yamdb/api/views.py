@@ -1,10 +1,12 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
+from rest_framework import filters, mixins, viewsets
 from rest_framework.pagination import LimitOffsetPagination
+from django_filters.rest_framework import DjangoFilterBackend
 
-from api.permissions import IsAdminModeratorOwnerOrReadOnly
-from reviews.models import Review, Title
-from api.serializers import CommentSerializer, ReviewSerializer
+from reviews.models import Category, Genre, Review, Title
+from api.permissions import IsAdminUserOrReadOnly, IsAdminModeratorOwnerOrReadOnly
+from api.serializers import (CommentSerializer, ReviewSerializer, CategorySerializer, GenreSerializer,
+                             TitleSafeSerializer, TitleUnsafeSerializer)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -37,3 +39,52 @@ class CommentViewSet(viewsets.ModelViewSet):
         review_id = self.kwargs.get('review_id')
         review = get_object_or_404(Review, id=review_id, title=title_id)
         serializer.save(author=self.request.user, review=review)
+
+
+class CategoryViewSet(
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet
+):
+    """ViewSet для категорий.
+    /categories/ - GET (anyone), POST (admin)
+    /categories/{slug} - DELETE (admin)"""
+    queryset = Category.objects.all()
+    lookup_field = 'slug'  # we get categories/slug instea of ctgrs/pk mask
+    serializer_class = CategorySerializer
+    permission_classes = (IsAdminUserOrReadOnly, )
+    filter_backends = (filters.SearchFilter, )
+    search_fields = ('name', )
+
+
+class GenreViewSet(
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet
+):
+    """ViewSet для жанров.
+    /genres/ - GET (anyone), POST (admin)
+    /genres/{slug} - DELETE (admin)"""
+    queryset = Genre.objects.all()
+    lookup_field = 'slug'
+    serializer_class = GenreSerializer
+    permission_classes = (IsAdminUserOrReadOnly, )
+    filter_backends = (filters.SearchFilter, )
+    search_fields = ('name', )
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    """ViewSet для произведений.
+    /genres/ - GET (anyone), POST (admin)
+    /genres/{slug} - GET (anyone), DELETE (admin), PATCH (admin)"""
+    queryset = Title.objects.all()
+    permission_classes = (IsAdminUserOrReadOnly, )
+    filter_backends = (DjangoFilterBackend, )
+    filterset_fields = ('category', 'genre', 'name', 'year')
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleSafeSerializer
+        return TitleUnsafeSerializer
