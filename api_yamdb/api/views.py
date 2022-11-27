@@ -6,7 +6,7 @@ from django.core.mail import send_mail
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from api.permissions import ForMeOnly, AdminOnly, IsAdminUserOrReadOnly, IsAdminModeratorOwnerOrReadOnly
+from api.permissions import UsersOnly, IsAdminUserOrReadOnly, IsAdminModeratorOwnerOrReadOnly
 from api.serializers import (UserSerializer, SignupSerializer,
                              TokenSerializer, CommentSerializer,
                              ReviewSerializer, CategorySerializer,
@@ -24,7 +24,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (AdminOnly,)
+    permission_classes = (IsAdminUserOrReadOnly,)
     search_fields = ('username',)
     lookup_field = 'username'
 
@@ -34,7 +34,7 @@ class MyViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     search_fields = ('username',)
     lookup_field = 'username'
-    permission_classes = (ForMeOnly,)
+    permission_classes = (UsersOnly,)
 
     def retrieve(self, request, *args, **kwargs):
         instance = request.user
