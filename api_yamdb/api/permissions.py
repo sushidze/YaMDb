@@ -1,4 +1,4 @@
-from rest_framework import permissions
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 USER = 'user'
 MODERATOR = 'moderator'
@@ -31,17 +31,17 @@ class GetAllPostDeleteAdmin(permissions.BasePermission):
 
 class ReviewsCommentsPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        if request.method == 'GET':
-            return True
-        if request.user.is_anonymous:
-            return False
-        return True
+        return (
+            request.method in SAFE_METHODS
+            or request.user.is_authenticated
+        )
 
     def has_object_permission(self, request, view, obj):
         if request.method == 'GET':
             return True
         return (
-                (request.method == 'PATCH' and obj.author == request.user)
+                request.method in SAFE_METHODS
+                or obj.author == request.user)
                 or request.user.role == ADMIN
                 or request.user.role == MODERATOR
                 or request.user.is_superuser
