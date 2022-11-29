@@ -1,12 +1,8 @@
-import datetime as dt
 from django.shortcuts import get_object_or_404
-
-from reviews.models import Comment, Category, Genre, Review, Title
-
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator, ValidationError
 
-from reviews.models import User
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -71,12 +67,12 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, data):
-        request = self.context['request']
-        author = request.user
         title_id = self.context['view'].kwargs.get('title_id')
-        title = get_object_or_404(Title, pk=title_id)
-        if request.method == 'POST':
-            if Review.objects.filter(title=title, author=author).exists():
+        if self.context['request'].method == 'POST':
+            if Review.objects.filter(
+                title=get_object_or_404(Title, pk=title_id),
+                author=self.context['request'].user
+            ).exists():
                 raise ValidationError(
                     'Отзыв к данному произведению уже добавлен'
                 )
@@ -120,42 +116,28 @@ class GenreSerializer(serializers.ModelSerializer):
         lookup_field = 'slug'
 
 
-class TitleSafeSerializer(serializers.ModelSerializer):
-    """Сериалайзер для произведений при запросах list | retrieve.
-    Сериализаторы категорий и жанра вложены."""
-    category = CategorySerializer()
-    genre = GenreSerializer(many=True)
-
-    class Meta:
-        model = Title
-        fields = '__all__'
-
-
-class TitleUnsafeSerializer(serializers.ModelSerializer):
-    """Сериалайзер для произведений при небезопасных запросах."""
-    category = serializers.SlugRelatedField(
-        slug_field='slug',
-        queryset=Category.objects.all()
-    )
+class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
-        slug_field='slug',
-        queryset=Genre.objects.all(),
-        many=True
+        slug_field='slug', many=True, queryset=Genre.objects.all()
+    )
+    category = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Category.objects.all()
     )
 
     class Meta:
         model = Title
         fields = '__all__'
 
-    def validate_year(self, value):
-        if value > dt.date.today().year:
-            raise ValidationError(f'{value} год еще не настал')
-        return value
 
-    def validate(self, data):
-        if Title.objects.filter(
-            name=data['name'],
-            year=data['year']
-        ).exists():
-            raise ValidationError('Такой тайтл уже есть')
-        return data
+class SafeTitleSerializer(serializers.ModelSerializer):
+    rating = serializers.IntegerField(
+        source='reviews__score__avg', read_only=True
+    )
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
+
+    class Meta:
+        model = Title
+        fields = (
+            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
+        )

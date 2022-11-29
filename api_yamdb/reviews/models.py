@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
-from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 
 
 class User(AbstractUser):
@@ -27,6 +27,9 @@ class User(AbstractUser):
     def is_admin(self):
         return self.role == self.ADMIN
 
+    class Meta:
+        ordering = ['id']
+
 
 class Category(models.Model):
     """Класс медиумов.
@@ -45,6 +48,7 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'категория'
         verbose_name_plural = 'категории'
+        ordering = ['name']
 
     def __str__(self) -> str:
         return self.name
@@ -67,6 +71,7 @@ class Genre(models.Model):
     class Meta:
         verbose_name = 'жанр'
         verbose_name_plural = 'жанры'
+        ordering = ['name']
 
     def __str__(self) -> str:
         return self.name
