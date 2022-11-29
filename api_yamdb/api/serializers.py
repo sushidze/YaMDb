@@ -2,16 +2,14 @@ import datetime as dt
 from django.shortcuts import get_object_or_404
 
 from reviews.models import Comment, Category, Genre, Review, Title
-from django.core.validators import RegexValidator
+
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator, ValidationError
 
-from reviews.models import User, ROLES
+from reviews.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    bio = serializers.CharField(required=False)
-    role = serializers.ChoiceField(required=False, choices=ROLES)
     username = serializers.CharField(
         required=True,
         validators=[UniqueValidator(queryset=User.objects.all())]
@@ -23,25 +21,42 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
+
+
+class UserEditSerializer(serializers.ModelSerializer):
+    class Meta:
         fields = '__all__'
+        model = User
+        read_only_fields = ('role',)
 
 
-class SignupSerializer(serializers.Serializer):
-    regex = RegexValidator(
-        '^[\w.@+-]+\Z$',
-        'Letters, digits and @/./+/-/_ only.'
+class SignupSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ]
     )
-    username = serializers.CharField(max_length=150, validators=[regex])
-    email = serializers.EmailField(max_length=254)
+    email = serializers.EmailField(
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ]
+    )
+
+    def validate_username(self, value):
+        if value.lower() == 'me':
+            raise serializers.ValidationError('Username "me" is not valid')
+        return value
+
+    class Meta:
+        fields = ('username', 'email')
+        model = User
 
 
 class TokenSerializer(serializers.Serializer):
-    regex = RegexValidator(
-        '^[\w.@+-]+\Z$',
-        'Letters, digits and @/./+/-/_ only.'
-    )
-    username = serializers.CharField(max_length=150,  validators=[regex])
-    confirmation_code = serializers.CharField(max_length=10)
+    username = serializers.CharField()
+    confirmation_code = serializers.CharField()
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -69,7 +84,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ('__all__')
+        fields = '__all__'
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -84,7 +99,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('__all__')
+        fields = '__all__'
 
 
 class CategorySerializer(serializers.ModelSerializer):
