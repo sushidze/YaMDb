@@ -74,23 +74,25 @@ def signup(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def token(request):
-    serializer = TokenSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    user = get_object_or_404(
-        User,
-        username=serializer.validated_data['username']
-    )
+class TokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    queryset = User.objects.all()
+    serializer_class = TokenSerializer
 
-    if default_token_generator.check_token(
-        user, serializer.validated_data['confirmation_code']
-    ):
-        token = AccessToken.for_user(user)
-        return Response({'token': str(token)}, status=status.HTTP_200_OK)
+    def create(self, request, **kwargs):
+        serializer = TokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = get_object_or_404(
+            User,
+            username=serializer.validated_data['username']
+        )
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if default_token_generator.check_token(
+                user, serializer.validated_data['confirmation_code']
+        ):
+            token = AccessToken.for_user(user)
+            return Response({'token': str(token)}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

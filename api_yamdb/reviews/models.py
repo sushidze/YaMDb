@@ -34,8 +34,6 @@ class User(AbstractUser):
 
 
 class Category(models.Model):
-    """Класс медиумов.
-    Поля: name: str, slug: str."""
     name = models.CharField(
         unique=True,
         max_length=256,
@@ -57,8 +55,8 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
-    """Класс жанров. (Одно произведение - любое количество жанров.)
-    Поля: name: str, slug: str."""
+    """Класс жанры служит для хранения данных о жанрах произведения."""
+
     name = models.CharField(
         unique=True,
         max_length=256,
@@ -80,10 +78,8 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    """Класс произведения.
-    Поля: name: str, year: int [-3000; 2050], rating: int [1; 10],
-    description: str, category: Category (many-to-one),
-    genres: Genre (many-to-many)."""
+    """Класс произведения. Хранит в себе названия произведений."""
+
     STR_PRESENTATION = ('{category} "{name}" ({year}) -'
                         '{rating}/10: {description:.16}')
     name = models.CharField(max_length=256, verbose_name='название')
@@ -123,7 +119,7 @@ class Title(models.Model):
         )
 
     def update_rating(self):
-        """Функция обновления рейтинга для вызова при работе с отзыами."""
+        """Функция для обновления рейтинга для вызова при работе с отзыами."""
         self.rating = round(mean(
             [review.score for review in self.reviews.all()]
         ))
