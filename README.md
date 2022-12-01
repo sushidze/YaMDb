@@ -49,3 +49,19 @@ python manage.py runserver
 ```
 http://127.0.0.1:8000/redoc/
 ```
+
+Можно заполнить базу из набора csv-файлов. Они должны лежать в /static/data/ и иметь названия:
+
+users
+category
+genre
+titles
+genre_title
+review
+comments
+
+Для импорта запустите команду:
+
+```
+python manage.py importcsv
+```

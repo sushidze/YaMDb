@@ -1,3 +1,5 @@
+from statistics import mean
+
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -89,7 +91,7 @@ class Title(models.Model):
         validators=(MinValueValidator(-3000), MaxValueValidator(2050)),
         verbose_name='год публикации'
     )
-    rating = models.PositiveIntegerField(
+    rating = models.PositiveSmallIntegerField(
         validators=(MinValueValidator(1), MaxValueValidator(10)),
         blank=True,
         null=True,
@@ -122,6 +124,13 @@ class Title(models.Model):
         )
         # могут быть тайтлы с одинаковым названием,
         # но при условии, что они вышли в разное время
+
+    def update_rating(self):
+        """Функция обновления рейтинга для вызова при работе с отзыами."""
+        self.rating = round(mean(
+            [review.score for review in self.reviews.all()]
+        ))
+        self.save()
 
     def __str__(self):
         return self.STR_PRESENTATION.format(
