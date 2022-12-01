@@ -108,6 +108,17 @@ class ReviewViewSet(viewsets.ModelViewSet):
         )
         serializer.save(author=self.request.user, title=title)
 
+    def perform_update(self, serializer):
+        title = get_object_or_404(
+            Title,
+            id=self.kwargs.get('title_id')
+        )
+        serializer.save(author=self.request.user, title=title)
+
+    def perform_destroy(self, review):
+        review.delete()
+        review.title.update_rating()
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
@@ -164,9 +175,7 @@ class GenreViewSet(
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().annotate(
-        Avg("reviews__score")
-    ).order_by("name")
+    queryset = Title.objects.all().annotate(Avg("reviews__score"))
     serializer_class = TitleSerializer
     permission_classes = (IsAdminUserOrReadOnly,)
     filterset_class = FilterForTitles

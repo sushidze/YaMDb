@@ -1,3 +1,5 @@
+import datetime as dt
+
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator, ValidationError
@@ -66,21 +68,35 @@ class ReviewSerializer(serializers.ModelSerializer):
         default=serializers.CurrentUserDefault()
     )
 
-    def validate(self, data):
-        title_id = self.context['view'].kwargs.get('title_id')
-        if self.context['request'].method == 'POST':
-            if Review.objects.filter(
-                title=get_object_or_404(Title, pk=title_id),
-                author=self.context['request'].user
-            ).exists():
-                raise ValidationError(
-                    'Отзыв к данному произведению уже добавлен'
-                )
-        return data
-
     class Meta:
         model = Review
         fields = '__all__'
+
+    def validate(self, data):
+        title = get_object_or_404(
+            Title,
+            pk=self.context['view'].kwargs.get('title_id')
+        )
+        if (self.context['request'].method == 'POST'
+            and Review.objects.filter(title=title,
+                                      author=self.context['request'].user
+                                      ).exists()):
+            raise ValidationError(
+                'Отзыв к данному произведению уже добавлен'
+            )
+        return data
+
+    def create(self, validated_data):
+        review = Review.objects.create(**validated_data)
+        validated_data['title'].update_rating()
+        return review
+
+    def update(self, review, validated_data):
+        review.text = validated_data.get('text', review.text)
+        review.score = validated_data.get('score', review.score)
+        review.save()
+        validated_data['title'].update_rating()
+        return review
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -128,6 +144,19 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
         fields = '__all__'
 
+    def validate_year(self, value):
+        if value > dt.date.today().year:
+            raise ValidationError(f'{value} год еще не настал')
+        return value
+
+    def validate(self, data):
+        if Title.objects.filter(
+            name=data.get('name'),
+            year=data.get('year')
+        ).exists():
+            raise ValidationError('Такой тайтл уже есть')
+        return data
+
 
 class SafeTitleSerializer(serializers.ModelSerializer):
     rating = serializers.IntegerField(
@@ -138,6 +167,4 @@ class SafeTitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = (
-            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
-        )
+        fields = '__all__'
