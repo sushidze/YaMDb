@@ -12,7 +12,7 @@ def parse_users(path):
     """id,username,email,role,bio,first_name,last_name"""
     users = []
     with open(path) as file:
-        next(file)  # пропускаем 1ую строку в файле (шапку таблицы)
+        next(file)
         reader = csv.reader(file)
         for row in reader:
             users.append(User(
@@ -31,7 +31,7 @@ def parse_categories(path):
     """id,name,slug"""
     categories = []
     with open(path) as file:
-        next(file)  # пропускаем 1ую строку в файле (шапку таблицы)
+        next(file)
         reader = csv.reader(file)
         for row in reader:
             categories.append(Category(
@@ -46,7 +46,7 @@ def parse_genres(path):
     """id,name,slug"""
     genres = []
     with open(path) as file:
-        next(file)  # пропускаем 1ую строку в файле (шапку таблицы)
+        next(file)
         reader = csv.reader(file)
         for row in reader:
             genres.append(Genre(
@@ -61,7 +61,7 @@ def parse_titles(path):
     """id,name,year,category"""
     titles = []
     with open(path, encoding="utf-8") as file:
-        next(file)  # пропускаем 1ую строку в файле (шапку таблицы)
+        next(file)
         reader = csv.reader(file)
         for row in reader:
             titles.append(Title(
@@ -76,7 +76,7 @@ def parse_titles(path):
 def set_genre_title_relations(path):
     """id(unused),title_id,genre_id"""
     with open(path) as file:
-        next(file)  # пропускаем 1ую строку в файле (шапку таблицы)
+        next(file)
         reader = csv.reader(file)
         for row in reader:
             Title.objects.get(pk=row[1]).genre.add(
@@ -89,7 +89,7 @@ def parse_reviews(path):
     reviews = []
     titles = set()
     with open(path, encoding="utf-8") as file:
-        next(file)  # пропускаем 1ую строку в файле (шапку таблицы)
+        next(file)
         reader = csv.reader(file)
         for row in reader:
             title = Title.objects.get(pk=row[1])
@@ -111,7 +111,7 @@ def parse_comments(path):
     """id,review_id,text,author,pub_date"""
     comments = []
     with open(path, encoding="utf-8") as file:
-        next(file)  # пропускаем 1ую строку в файле (шапку таблицы)
+        next(file)
         reader = csv.reader(file)
         for row in reader:
             comments.append(Comment(
@@ -128,7 +128,6 @@ class Command(BaseCommand):
     help = 'Parses csv files to fill a base'
 
     def handle(self, *args, **options):
-        # [callable, file name]
         parse_cases = [
             [parse_users, 'users'],
             [parse_categories, 'category'],

@@ -111,7 +111,6 @@ class Title(models.Model):
     genre = models.ManyToManyField(
         Genre,
         related_name='titles')
-    # пожалуй, в прокси-модели нет необходимости
 
     class Meta:
         verbose_name = 'произведение'
@@ -122,8 +121,6 @@ class Title(models.Model):
                 name='unique_follow_relation'
             ),
         )
-        # могут быть тайтлы с одинаковым названием,
-        # но при условии, что они вышли в разное время
 
     def update_rating(self):
         """Функция обновления рейтинга для вызова при работе с отзыами."""
