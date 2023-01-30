@@ -82,7 +82,7 @@ class ReviewSerializer(serializers.ModelSerializer):
                                       author=self.context['request'].user
                                       ).exists()):
             raise ValidationError(
-                'Отзыв к данному произведению уже добавлен'
+                'Review already exists'
             )
         return data
 
@@ -115,8 +115,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    """Сериалайзер для категорий.
-    Параметр пути - слаг."""
+    """Serializer for categories.
+    Lookup param - slug."""
     class Meta:
         model = Category
         fields = ('name', 'slug')
@@ -124,8 +124,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    """Сериалайзер для жанров.
-    Параметр пути - слаг."""
+    """Serializer for genres.
+    Lookup param - slug."""
     class Meta:
         model = Genre
         fields = ('name', 'slug')
@@ -146,7 +146,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def validate_year(self, value):
         if value > dt.date.today().year:
-            raise ValidationError(f'{value} год еще не настал')
+            raise ValidationError(f'{value} year has not come yet')
         return value
 
     def validate(self, data):
@@ -154,7 +154,7 @@ class TitleSerializer(serializers.ModelSerializer):
             name=data.get('name'),
             year=data.get('year')
         ).exists():
-            raise ValidationError('Такой тайтл уже есть')
+            raise ValidationError('Title already exists')
         return data
 
 

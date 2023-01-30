@@ -37,17 +37,17 @@ class Category(models.Model):
     name = models.CharField(
         unique=True,
         max_length=256,
-        verbose_name='название'
+        verbose_name='name'
     )
     slug = models.SlugField(
         unique=True,
         max_length=50,
-        verbose_name='идентификатор'
+        verbose_name='identifier'
     )
 
     class Meta:
-        verbose_name = 'категория'
-        verbose_name_plural = 'категории'
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'
         ordering = ['name']
 
     def __str__(self) -> str:
@@ -55,22 +55,22 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
-    """Класс жанры служит для хранения данных о жанрах произведения."""
+    """The genres class is used to store data about the genres of a work."""
 
     name = models.CharField(
         unique=True,
         max_length=256,
-        verbose_name='название'
+        verbose_name='name'
     )
     slug = models.SlugField(
         unique=True,
         max_length=50,
-        verbose_name='идентификатор'
+        verbose_name='identifier'
     )
 
     class Meta:
-        verbose_name = 'жанр'
-        verbose_name_plural = 'жанры'
+        verbose_name = 'Genre'
+        verbose_name_plural = 'Genres'
         ordering = ['name']
 
     def __str__(self) -> str:
@@ -78,25 +78,25 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    """Класс произведения. Хранит в себе названия произведений."""
+    """The class of the artwork. Stores the titles of the artworks."""
 
     STR_PRESENTATION = ('{category} "{name}" ({year}) -'
                         '{rating}/10: {description:.16}')
-    name = models.CharField(max_length=256, verbose_name='название')
+    name = models.CharField(max_length=256, verbose_name='name')
     year = models.IntegerField(
         validators=(MinValueValidator(-3000), MaxValueValidator(2050)),
-        verbose_name='год публикации'
+        verbose_name='publication year'
     )
     rating = models.PositiveSmallIntegerField(
         validators=(MinValueValidator(1), MaxValueValidator(10)),
         blank=True,
         null=True,
-        verbose_name='рейтинг'
+        verbose_name='rating'
     )
     description = models.TextField(
         blank=True,
         null=True,
-        verbose_name='описание'
+        verbose_name='description'
     )
     category = models.ForeignKey(
         Category,
@@ -109,8 +109,8 @@ class Title(models.Model):
         related_name='titles')
 
     class Meta:
-        verbose_name = 'произведение'
-        verbose_name_plural = 'произведения'
+        verbose_name = 'Artworks'
+        verbose_name_plural = 'Artworks'
         constraints = (
             models.UniqueConstraint(
                 fields=('name', 'year'),
@@ -119,7 +119,7 @@ class Title(models.Model):
         )
 
     def update_rating(self):
-        """Функция для обновления рейтинга для вызова при работе с отзыами."""
+        """A function to update the rating for calling when working with reviews."""
         self.rating = round(mean(
             [review.score for review in self.reviews.all()]
         ))
@@ -138,31 +138,31 @@ class Review(models.Model):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
-        verbose_name='Произведение'
+        verbose_name='artwork'
     )
     text = models.TextField(
-        verbose_name='Текст отзыва',
+        verbose_name='review text',
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Автор отзыва'
+        verbose_name='review author'
     )
     score = models.PositiveSmallIntegerField(
         validators=[
-            MinValueValidator(1, message='Укажите число от 1 до 10'),
-            MaxValueValidator(10, message='Укажите число от 1 до 10')
+            MinValueValidator(1, message='Choose value from 1 to 10'),
+            MaxValueValidator(10, message='Ser value from 1 to 10')
         ],
-        verbose_name='Оценка'
+        verbose_name='score'
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
-        verbose_name='Дата публикации отзыва'
+        verbose_name='date of review'
     )
 
     class Meta:
-        verbose_name = 'Отзыв'
-        verbose_name_plural = 'Отзывы'
+        verbose_name = 'Review'
+        verbose_name_plural = 'Reviews'
         default_related_name = 'reviews'
         ordering = ['pub_date']
         constraints = [
@@ -177,23 +177,23 @@ class Comment(models.Model):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        verbose_name='Отзыв'
+        verbose_name='review'
     )
     text = models.TextField(
-        verbose_name='Текст комментария',
+        verbose_name='comment text',
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Автор комментария'
+        verbose_name='comment author'
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
-        verbose_name='Дата публикации комментария'
+        verbose_name='comment date'
     )
 
     class Meta:
-        verbose_name = 'Комментарий'
-        verbose_name_plural = 'Комментарии'
+        verbose_name = 'Comment'
+        verbose_name_plural = 'Comments'
         default_related_name = 'comments'
         ordering = ['pub_date']
