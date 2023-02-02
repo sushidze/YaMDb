@@ -38,12 +38,12 @@ When project was successfully run you will see docs for API YaMDb following the 
 
 You can add data to your db using csv-files. They should be located in /static/data/ with the following names:
 
-- users \
-- category \
-- genre \
-- titles \
-- genre_title \
-- review \
+- users 
+- category 
+- genre 
+- titles 
+- genre_title 
+- review 
 - comments
 
 Import data:
