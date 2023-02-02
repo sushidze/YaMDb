@@ -1,67 +1,52 @@
+# YaMDb
 
-Проект YaMDb собирает отзывы пользователей на произведения. Сами произведения в YaMDb не хранятся, здесь нельзя посмотреть фильм или послушать музыку.
+This is an analogue of IMDb but about artworks where users rate, comment, write reviews and see current ratings. The YaMDb project collects user reviews of artworks. The works themselves are not stored in YaMDb, you cannot watch a movie or listen to music here.
+Works are divided into categories and can be assigned to genre. 
 
-### Как запустить проект:
+Users have different roles (admin, moderator, user). Project backend implemented on Django using API. User registration implemented with POST-request and JWT-token response.
 
-Клонировать репозиторий и перейти в него в командной строке:
+### Run
+
+Clone repo and create venv:
 
 ```
 git clone git@github.com:sushidze/api_yamdb.git
-```
-
-```
 cd api_yamdb
-```
 
-Cоздать и активировать виртуальное окружение:
-
-```
 python -m venv env
+. venv/bin/activate
 ```
 
-```
-source venv/Scripts/activate
-```
-
-Установить зависимости из файла requirements.txt:
+Install requirements.txt:
 
 ```
 python -m pip install --upgrade pip
-```
-
-```
 pip install -r requirements.txt
 ```
 
-Выполнить миграции:
+Do Django migrations and run project:
 
 ```
 python manage.py migrate
-```
 
-Запустить проект:
-
-```
 python manage.py runserver
 ```
 
-Когда вы запустите проект, для API YaMDb будет доступна документация по адресу:
+When project was successfully run you will see docs for API YaMDb following the link http://127.0.0.1:8000/redoc/
 
-```
-http://127.0.0.1:8000/redoc/
-```
+### Usage
 
-Можно заполнить базу из набора csv-файлов. Они должны лежать в /static/data/ и иметь названия:
+You can add data to your db using csv-files. They should be located in /static/data/ with the following names:
 
-users
-category
-genre
-titles
-genre_title
-review
-comments
+- users \
+- category \
+- genre \
+- titles \
+- genre_title \
+- review \
+- comments
 
-Для импорта запустите команду:
+Import data:
 
 ```
 python manage.py importcsv
